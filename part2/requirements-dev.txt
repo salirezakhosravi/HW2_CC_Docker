@@ -1,0 +1,2 @@
+# Dev-only. Do not install this inside the runtime image.
+pytest==8.3.5

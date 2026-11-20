@@ -1,0 +1,70 @@
+{
+  "info": {
+    "name": "Lab queue",
+    "description": "Change the baseUrl variable if APP_PORT is not 8000. Run the requests from top to bottom.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "join",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ali\"\n}"
+        },
+        "url": "{{baseUrl}}/join"
+      }
+    },
+    {
+      "name": "join invalid",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\"\n}"
+        },
+        "url": "{{baseUrl}}/join"
+      }
+    },
+    {
+      "name": "next",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/next"
+      }
+    },
+    {
+      "name": "next empty",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/next"
+      }
+    }
+  ]
+}
