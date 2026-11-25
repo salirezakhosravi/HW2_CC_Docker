@@ -4,17 +4,11 @@ The container must run this file immediately and then exit.
 The image entrypoint must be this program.
 """
 
-
+# Hello World program for Part 1 of the Cloud Computing course.
 def main() -> None:
-    # TODO: Print exactly four lines, each with its own print:
-    #   1. first name
-    #   2. last name
-    #   3. student id, using Latin digits
-    #   4. Welcome To Cloud Computing Course - Fall 1405
-    #
-    # You do not need to import the package you put in requirements.txt.
-    raise NotImplementedError("TODO: print the four lines")
-
-
+    print("Seyed Alireza")
+    print("Khosravi")
+    print("40231015")
+    print("Welcome To Cloud Computing Course - Fall 1405")
 if __name__ == "__main__":
     main()

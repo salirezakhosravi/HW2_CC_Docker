@@ -22,8 +22,17 @@
 #   docker images
 #   docker push ghcr.io/<username>/cc-hello:slim
 
+# FROM python:3.12
+# COPY . /app
+# WORKDIR /app
+# RUN pip install -r requirements.txt
+# CMD ["python", "app.py"]
+
+# cache pip install layer by copying requirements.txt first, then installing dependencies, then copying the rest of the files. This way, if app.py changes but requirements.txt does not, the pip install layer is cached and does not need to be re-run.
+
 FROM python:3.12
-COPY . /app
 WORKDIR /app
+COPY requirements.txt .
 RUN pip install -r requirements.txt
+COPY app.py .
 CMD ["python", "app.py"]
