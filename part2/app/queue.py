@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
+
 def join(path: str | Path, name: str) -> int:
     """Append one person and return the ticket number.
 
