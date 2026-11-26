@@ -1,0 +1,7 @@
+tests/
+.git
+postman/
+site/
+tools/
+.venv/
+.env
