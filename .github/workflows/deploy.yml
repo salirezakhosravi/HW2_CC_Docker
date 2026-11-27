@@ -1,0 +1,35 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Git tag to deploy
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ inputs.tag }}
+      - env:
+          VERSION: ${{ inputs.tag }}
+        run: sed -i "s/__VERSION__/${VERSION}/g" part2/site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: part2/site
+      - id: deployment
+        uses: actions/deploy-pages@v4
