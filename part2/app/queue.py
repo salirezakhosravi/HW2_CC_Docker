@@ -7,7 +7,20 @@ with a temporary directory, and do not start Docker.
 from __future__ import annotations
 
 from pathlib import Path
+import fcntl
+import os
+import uuid
+from contextlib import contextmanager
 
+@contextmanager
+def _locked(path: Path):
+    lock_path = path.parent / "queue.lock"
+    with open(lock_path, "a") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
 
 
 def join(path: str | Path, name: str) -> int:
@@ -30,13 +43,14 @@ def join(path: str | Path, name: str) -> int:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    if path.exists():
-        count = len(path.read_text(encoding="utf-8").splitlines())
-    else:
-        count = 0
-    with open(path, "a", encoding="utf-8") as f:
-        f.write(file_name + "\n")
-    return count + 1
+    with _locked(path):
+        if path.exists():
+            count = len(path.read_text(encoding="utf-8").splitlines())
+        else:
+            count = 0
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(file_name + "\n")
+        return count + 1
 
     
 
@@ -45,15 +59,24 @@ def take(path: str | Path) -> str:
 
     Raise LookupError when the file is missing or has no names.
     """
-
     path = Path(path)
     if not path.exists():
         raise LookupError("File does not exist")
 
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines:
-        raise LookupError("Queue is empty")
+    with _locked(path):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if not lines:
+            raise LookupError("Queue is empty")
 
-    first, rest = lines[0], lines[1:]
-    path.write_text("".join(line + "\n" for line in rest), encoding="utf-8")
-    return first
+        first, rest = lines[0], lines[1:]
+        tmp = path.parent / f".queue.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write("".join(n + "\n" for n in rest))
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, path)
+        except BaseException:
+            tmp.unlink(missing_ok=True)
+            raise
+        return first
